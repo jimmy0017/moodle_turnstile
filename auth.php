@@ -9,7 +9,7 @@ class auth_plugin_turnstile extends auth_plugin_base {
      */
     public function __construct() {
         $this->authtype = 'turnstile';
-        $this->config = get_config('auth/turnstile');
+        $this->config = get_config('auth_turnstile');
     }
 
     /**
