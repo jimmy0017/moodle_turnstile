@@ -115,7 +115,7 @@ class auth_plugin_turnstile extends auth_plugin_base {
         // Add Turnstile script to page header
         $PAGE->requires->js(new moodle_url('https://challenges.cloudflare.com/turnstile/v0/api.js'), true);
         
-        // Add Turnstile widget div to page
+        // Add Turnstile widget div and form validation
         $PAGE->requires->js_init_code('
             var turnstileContainer = document.createElement("div");
             turnstileContainer.className = "turnstile-container";
@@ -124,7 +124,20 @@ class auth_plugin_turnstile extends auth_plugin_base {
             turnstileWidget.setAttribute("data-sitekey", "' . $this->config->site_key . '");
             turnstileWidget.setAttribute("data-theme", "' . ($PAGE->theme->name === 'dark' ? 'dark' : 'light') . '");
             turnstileContainer.appendChild(turnstileWidget);
-            document.querySelector("#login").appendChild(turnstileContainer);
+            
+            // Find the login form and add the Turnstile container
+            var loginForm = document.querySelector("#login");
+            loginForm.appendChild(turnstileContainer);
+            
+            // Add form submission handler
+            loginForm.addEventListener("submit", function(e) {
+                var turnstileResponse = document.querySelector("[name=\'cf-turnstile-response\']");
+                if (!turnstileResponse || !turnstileResponse.value) {
+                    e.preventDefault();
+                    alert("Please complete the Turnstile challenge.");
+                    return false;
+                }
+            });
         ');
     }
 }
