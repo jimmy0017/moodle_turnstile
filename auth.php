@@ -172,4 +172,65 @@ class auth_plugin_turnstile extends auth_plugin_base {
             });
         ');
     }
+
+    /**
+     * Indicates if the plugin supports signup functionality.
+     *
+     * @return bool True if the plugin supports signup.
+     */
+    public function can_signup() {
+        return true;
+    }
+
+    /**
+     * Indicates if the plugin will create the user during signup.
+     *
+     * @return bool True if the plugin will create the user.
+     */
+    public function can_confirm() {
+        return true;
+    }
+
+    /**
+     * Sign up form customization.
+     *
+     * @param MoodleQuickForm $mform Moodle form object
+     */
+    public function signup_form($mform) {
+        global $PAGE;
+
+        // Add Turnstile script to page header
+        $PAGE->requires->js(new moodle_url('https://challenges.cloudflare.com/turnstile/v0/api.js'), true);
+
+        // Add container for Turnstile
+        $mform->addElement('html', '
+            <div class="turnstile-container">
+                <div class="cf-turnstile" 
+                     data-sitekey="' . $this->config->site_key . '"
+                     data-theme="' . ($PAGE->theme->name === 'dark' ? 'dark' : 'light') . '">
+                </div>
+            </div>
+        ');
+    }
+
+    /**
+     * Validates the signup form data.
+     *
+     * @param array $data Form data
+     * @param array $files Files from form
+     * @return array List of errors if any
+     */
+    public function signup_validation($data, $files) {
+        $errors = array();
+        
+        // Verify Turnstile response
+        $tokenKey = optional_param('cf-turnstile-response', '', PARAM_RAW_TRIMMED);
+        $secret = trim($this->config->secretkey);
+
+        if (empty($tokenKey) || !$this->verify_turnstile_token($tokenKey, $secret)) {
+            $errors['turnstile'] = get_string('turnstileverificationfailed', 'auth_turnstile');
+        }
+
+        return $errors;
+    }
 }
