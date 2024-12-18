@@ -115,12 +115,16 @@ class auth_plugin_turnstile extends auth_plugin_base {
         // Add Turnstile script to page header
         $PAGE->requires->js(new moodle_url('https://challenges.cloudflare.com/turnstile/v0/api.js'), true);
         
-        // Render the turnstile widget
-        $templatecontext = [
-            'sitekey' => $this->config->site_key,
-            'theme' => $PAGE->theme->name === 'dark' ? 'dark' : 'light'
-        ];
-        
-        return $OUTPUT->render_from_template('auth_turnstile/turnstile', $templatecontext);
+        // Add Turnstile widget div to page
+        $PAGE->requires->js_init_code('
+            var turnstileContainer = document.createElement("div");
+            turnstileContainer.className = "turnstile-container";
+            var turnstileWidget = document.createElement("div"); 
+            turnstileWidget.className = "cf-turnstile";
+            turnstileWidget.setAttribute("data-sitekey", "' . $this->config->site_key . '");
+            turnstileWidget.setAttribute("data-theme", "' . ($PAGE->theme->name === 'dark' ? 'dark' : 'light') . '");
+            turnstileContainer.appendChild(turnstileWidget);
+            document.querySelector("#login").appendChild(turnstileContainer);
+        ');
     }
 }

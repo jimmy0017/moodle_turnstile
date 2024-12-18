@@ -7,7 +7,7 @@ if ($ADMIN->fulltree) {
         'auth_turnstile/site_key',  // matches the config name
         get_string('site_key', 'auth_turnstile'),
         get_string('site_key_desc', 'auth_turnstile'),
-        '',
+        '1x00000000000000000000AA',
         PARAM_TEXT
     ));
 
@@ -16,7 +16,7 @@ if ($ADMIN->fulltree) {
         'auth_turnstile/secret_key',  // matches the config name
         get_string('secret_key', 'auth_turnstile'),
         get_string('secret_key_desc', 'auth_turnstile'),
-        '',
+        '1x0000000000000000000000000000000AA',
         PARAM_TEXT
     ));
 }
